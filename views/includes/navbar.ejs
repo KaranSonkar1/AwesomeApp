@@ -1,0 +1,92 @@
+<style>
+  .search-btn {
+    background-color: #fe424d;
+    color: #fff;
+    border-radius: 25px;
+    padding: 0 1rem;
+  }
+
+  .search-btn:hover {
+    background-color: #e63946;
+    color: #fff;
+  }
+
+  .search-btn i {
+    margin-right: 0.5rem;
+  }
+
+  .search-inp,
+  .filter-select {
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+  }
+</style>
+
+<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/listings">
+      <i class="fa-solid fa-compass"></i>
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNavAltMarkup"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <!-- Left: Explore -->
+      <div class="navbar-nav">
+        <a class="nav-link" href="/listings">Explore</a>
+      </div>
+
+      <!-- Center: Search and Category -->
+      <div class="navbar-nav ms-auto me-3">
+        <form class="d-flex" role="search" action="/listings" method="GET">
+          <input
+            name="q"
+            class="form-control search-inp"
+            type="search"
+            placeholder="Search destinations"
+            value="<%= typeof searchParams !== 'undefined' && searchParams.q ? searchParams.q : '' %>"
+          />
+
+          <select name="category" class="form-select filter-select">
+            <option value="all">All Categories</option>
+            <% if (typeof categories !== 'undefined') { %>
+              <% for (let cat of categories) { %>
+                <option
+                  value="<%= cat %>"
+                  <%= (searchParams && searchParams.category === cat) ? "selected" : "" %>
+                >
+                  <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+                </option>
+              <% } %>
+            <% } %>
+          </select>
+
+          <button class="btn search-btn" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i>Search
+          </button>
+        </form>
+      </div>
+
+      <!-- Right: Auth -->
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="/listings/new">Airbnb your home</a>
+
+        <% if (!currentUser) { %>
+          <a class="nav-link" href="/signup">Sign up</a>
+          <a class="nav-link" href="/login">Log in</a>
+        <% } else { %>
+          <span class="navbar-text me-2">Welcome, <%= currentUser.username %></span>
+          <a class="nav-link" href="/logout">Log out</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>

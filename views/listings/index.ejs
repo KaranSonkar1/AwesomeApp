@@ -1,0 +1,207 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+  #filters {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    align-items: center;
+    padding-bottom: 1rem;
+  }
+
+  .filter {
+    text-align: center;
+    margin-right: 1.5rem;
+    margin-top: 1rem;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .filter:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  .filter p {
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .tax-info {
+    display: none;
+  }
+
+  .tax-toggle {
+    border: 1px solid black;
+    border-radius: 1rem;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0 0 1rem;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .listing-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .active-filter {
+    opacity: 1 !important;
+    border-bottom: 2px solid black;
+  }
+
+  @media (max-width: 768px) {
+    #filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tax-toggle {
+      margin-left: 1rem;
+      margin-top: 1rem;
+    }
+
+    .card-img-top {
+      height: 16rem !important;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .card-img-top {
+      height: 14rem !important;
+    }
+  }
+</style>
+
+<!-- Category Filter -->
+<div id="filters">
+  <a href="/listings?category=Trending" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Trending' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-fire"></i></div><p>Trending</p>
+    </div>
+  </a>
+  <a href="/listings?category=Room" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Room' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-bed"></i></div><p>Room</p>
+    </div>
+  </a>
+  <a href="/listings?category=Iconic Cities" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Iconic Cities' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-mountain-city"></i></div><p>Iconic Cities</p>
+    </div>
+  </a>
+  <a href="/listings?category=Mountains" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Mountains' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-mountain"></i></div><p>Mountains</p>
+    </div>
+  </a>
+  <a href="/listings?category=Castles" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Castles' ? 'active-filter' : '' %>">
+      <div><i class="fa-brands fa-fort-awesome"></i></div><p>Castles</p>
+    </div>
+  </a>
+  <a href="/listings?category=Amazing Pools" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Amazing Pools' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-person-swimming"></i></div><p>Amazing Pools</p>
+    </div>
+  </a>
+  <a href="/listings?category=Camping" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Camping' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-campground"></i></div><p>Camping</p>
+    </div>
+  </a>
+  <a href="/listings?category=Farms" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Farms' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-cow"></i></div><p>Farms</p>
+    </div>
+  </a>
+  <a href="/listings?category=Arctic" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Arctic' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-snowflake"></i></div><p>Arctic</p>
+    </div>
+  </a>
+  <a href="/listings?category=Domes" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Domes' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-igloo"></i></div><p>Domes</p>
+    </div>
+  </a>
+  <a href="/listings?category=Boats" class="listing-link">
+    <div class="filter <%= searchParams.category === 'Boats' ? 'active-filter' : '' %>">
+      <div><i class="fa-solid fa-ship"></i></div><p>Boats</p>
+    </div>
+  </a>
+
+  <!-- Reset Button -->
+  <a href="/listings" class="btn btn-outline-secondary ms-3 mt-3">All Listings</a>
+
+  <!-- Tax Toggle -->
+  <div class="tax-toggle">
+    <div class="form-check-reverse form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault" />
+      <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+    </div>
+  </div>
+</div>
+
+<!-- Listings Grid -->
+<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+  <% if (allListings && allListings.length) { %>
+    <% for (let listing of allListings) { %>
+      <a href="/listings/<%= listing._id %>" class="listing-link">
+        <div class="card col listing-card mb-4">
+          <img
+            src="<%= listing.image?.url || 'https://example.com/default-image.jpg' %>"
+            class="card-img-top"
+            alt="<%= listing.title %> image"
+            style="height: 20rem"
+          />
+          <div class="card-img-overlay"></div>
+          <div class="card-body">
+            <p class="card-text">
+              <b><%= listing.title %></b><br />
+              ₹<span class="base-price"><%= listing.price %></span>/night
+              <span class="tax-info"> + GST ₹<span class="gst"></span> (18%)</span>
+              <br>
+              <span class="tax-info">Total: ₹<span class="total-price"></span></span>
+            </p>
+          </div>
+        </div>
+      </a>
+    <% } %>
+  <% } else { %>
+    <div class="text-center mt-5">
+      <h4>No listings available at this time.</h4>
+      <a href="/listings" class="btn btn-outline-primary mt-3">Back to All Listings</a>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  const taxSwitch = document.getElementById("switchCheckDefault");
+  taxSwitch.addEventListener("click", () => {
+    const taxInfos = document.querySelectorAll(".tax-info");
+    const basePrices = document.querySelectorAll(".base-price");
+    const gstEls = document.querySelectorAll(".gst");
+    const totalEls = document.querySelectorAll(".total-price");
+
+    if (taxSwitch.checked) {
+      taxInfos.forEach((el, idx) => {
+        const base = parseFloat(basePrices[idx].textContent);
+        const gst = (base * 0.18).toFixed(0);
+        const total = Math.round(base + parseFloat(gst));
+        gstEls[idx].textContent = gst;
+        totalEls[idx].textContent = total;
+        el.style.display = "inline";
+      });
+    } else {
+      taxInfos.forEach((el) => {
+        el.style.display = "none";
+      });
+    }
+  });
+</script>

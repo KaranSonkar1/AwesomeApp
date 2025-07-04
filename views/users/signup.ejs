@@ -1,0 +1,90 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="row mt-3">
+  <h1 class="col-6 offset-3">Sign Up on WanderLust</h1>
+  <div class="col-6 offset-3">
+
+    <form action="/signup" method="POST" class="needs-validation" novalidate>
+      
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="username"
+          name="username" 
+          required 
+        />
+        <div class="invalid-feedback">
+          Please enter a username.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input 
+          type="email" 
+          class="form-control" 
+          id="email" 
+          name="email" 
+          required 
+        />
+        <div class="invalid-feedback">
+          Please enter a valid email.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input 
+          type="tel" 
+          class="form-control" 
+          id="phone" 
+          name="phone" 
+          pattern="^\+\d{10,15}$"
+          placeholder="+919876543210"
+          required 
+        />
+        <div class="invalid-feedback">
+          Please enter a valid phone number (e.g., +919876543210).
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input 
+          type="password" 
+          class="form-control" 
+          id="password" 
+          name="password" 
+          required 
+        />
+        <div class="invalid-feedback">
+          Please enter a password.
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-success w-100">Sign Up</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  // Bootstrap validation
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', e => {
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>

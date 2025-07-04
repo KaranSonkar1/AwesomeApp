@@ -1,0 +1,19 @@
+<% layout('/layouts/boilerplate') %>
+
+<div style="font-family: Arial, sans-serif; background-color: #f8f8f8; text-align: center; padding: 50px;">
+  <div style="padding: 20px; background-color: #ffcccb; border: 1px solid #ff0000; display: inline-block; max-width: 600px; margin: auto;">
+    <h1 style="font-size: 3em; color: #ff0000;"><%= message || error || "Error" %></h1>
+
+    <% if (errors && typeof errors === 'object' && Object.keys(errors).length > 0) { %>
+      <ul style="text-align: left; color: #a00; font-size: 1.2em;">
+        <% Object.keys(errors).forEach(function(field) { %>
+          <li><%= errors[field].message %></li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p style="font-size: 1.2em; color: #555;">An unexpected error occurred.</p>
+    <% } %>
+
+    <a href="/listings" style="text-decoration: none; color: #007bff; font-size: 1.2em;">Back to Listings</a>
+  </div>
+</div>

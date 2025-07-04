@@ -1,0 +1,102 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <h2>Checkout: <%= listing.title %></h2>
+
+  <form id="bookingForm">
+    <div class="mb-3">
+      <label for="checkIn" class="form-label">Check In</label>
+      <input type="date" class="form-control" id="checkIn" name="checkIn" required />
+    </div>
+
+    <div class="mb-3">
+      <label for="checkOut" class="form-label">Check Out</label>
+      <input type="date" class="form-control" id="checkOut" name="checkOut" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Pay & Book</button>
+  </form>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const booked = <%- JSON.stringify(bookedDates) %>;
+
+  const disableBookedRanges = () => {
+    const checkIn = document.getElementById("checkIn");
+    const checkOut = document.getElementById("checkOut");
+
+    const today = new Date().toISOString().split("T")[0];
+    checkIn.min = today;
+    checkOut.min = today;
+
+    const isBooked = (date) => {
+      return booked.some(b => date >= b.checkIn && date < b.checkOut);
+    };
+
+    [checkIn, checkOut].forEach(input => {
+      input.addEventListener("input", () => {
+        const value = input.value;
+        if (isBooked(value)) {
+          alert("❌ This date is already booked.");
+          input.value = "";
+        }
+      });
+    });
+  };
+
+  disableBookedRanges();
+
+  document.getElementById("bookingForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const checkIn = document.getElementById("checkIn").value;
+    const checkOut = document.getElementById("checkOut").value;
+
+    const res = await fetch(`/bookings/<%= listing._id %>/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checkIn, checkOut }),
+    });
+
+    const data = await res.json();
+
+    if (data.error) return alert("❌ " + data.error);
+
+    const options = {
+      key: data.key,
+      amount: data.order.amount,
+      currency: "INR",
+      name: "Waanderlust",
+      description: "Booking Payment",
+      order_id: data.order.id,
+      handler: async function (response) {
+        const confirmRes = await fetch("/bookings/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+            listingId: "<%= listing._id %>",
+            checkIn,
+            checkOut,
+            price: data.price,
+          }),
+        });
+
+        const confirmData = await confirmRes.json();
+        if (confirmRes.ok) {
+          alert("✅ Booking confirmed!");
+          window.location.href = "/bookings/my";
+        } else {
+          alert("❌ " + confirmData.error);
+        }
+      },
+      theme: { color: "#0d6efd" },
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  });
+</script>
