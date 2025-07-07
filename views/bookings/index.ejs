@@ -1,10 +1,12 @@
 <% layout("layouts/boilerplate") %>
 
-<div class="container mt-5">
+<section class="container my-5">
   <h2 class="mb-4 text-center">🧳 My Bookings</h2>
 
   <% if (bookings.length === 0) { %>
-    <div class="alert alert-warning text-center">You have no bookings yet. Start your adventure now!</div>
+    <div class="alert alert-warning text-center">
+      You have no bookings yet. Start your adventure now!
+    </div>
   <% } else { %>
     <div class="row row-cols-1 row-cols-md-2 g-4">
       <% bookings.forEach(b => { %>
@@ -13,10 +15,23 @@
             <% if (b.listing?.image?.url) { %>
               <img src="<%= b.listing.image.url %>" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Listing image">
             <% } %>
+
             <div class="card-body">
               <h5 class="card-title">
                 <%= b.listing?.title || "Listing not found" %>
               </h5>
+
+              <% if (b.status) { %>
+                <span class="badge bg-<%= 
+                  b.status === 'Refunded' ? 'danger' :
+                  b.status === 'Confirmed' ? 'success' :
+                  b.status === 'Cancelled' ? 'warning' :
+                  'secondary' 
+                %>">
+                  <%= b.status %>
+                </span>
+              <% } %>
+
               <% if (b.checkIn) { %>
                 <p><i class="bi bi-calendar-check"></i> <strong>Check In:</strong> <%= new Date(b.checkIn).toDateString() %></p>
               <% } %>
@@ -25,12 +40,19 @@
               <% } %>
               <p><i class="bi bi-cash-coin"></i> <strong>Price:</strong> ₹<%= b.price %></p>
             </div>
-            <div class="card-footer bg-transparent border-top-0 text-end">
+
+            <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
               <a href="/listings/<%= b.listing?._id %>" class="btn btn-outline-primary btn-sm">View Listing</a>
+
+              <% if (b.status === "Confirmed") { %>
+                <form action="/bookings/<%= b._id %>/cancel" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+                </form>
+              <% } %>
             </div>
           </div>
         </div>
       <% }) %>
     </div>
   <% } %>
-</div>
+</section>

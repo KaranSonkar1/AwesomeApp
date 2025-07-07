@@ -1,0 +1,28 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <h3>My Wishlist</h3>
+
+  <% if (listings.length === 0) { %>
+    <div class="alert alert-info">You have no items in your wishlist.</div>
+  <% } %>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+    <% listings.forEach(l => { %>
+      <div class="col">
+        <div class="card">
+          <a href="/listings/<%= l._id %>">
+            <img src="<%= l.image?.url || '/images/default.jpg' %>" class="card-img-top" alt="<%= l.title %>">
+          </a>
+          <div class="card-body">
+            <h5 class="card-title"><%= l.title %></h5>
+            <p class="card-text">₹<%= l.price %>/night</p>
+            <form action="/wishlist/<%= l._id %>/remove?_method=DELETE" method="POST">
+              <button class="btn btn-sm btn-danger">Remove</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>

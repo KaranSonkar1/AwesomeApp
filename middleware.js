@@ -1,8 +1,13 @@
 const Listing = require("./models/listing");
 const Review = require("./models/review");
 const Booking = require("./models/bookings");
+const User = require("./models/user");
 const ExpressError = require("./utils/ExpressError");
 const { listingSchema, reviewSchema, bookingSchema } = require("./schema");
+
+// ------------------
+// AUTH + VALIDATIONS
+// ------------------
 
 module.exports.isLoggedIn = function (req, res, next) {
   if (!req.isAuthenticated()) {
@@ -77,6 +82,61 @@ module.exports.validateBooking = (req, res, next) => {
   if (error) {
     const msg = error.details.map((el) => el.message).join(", ");
     throw new ExpressError(400, msg);
+  }
+  next();
+};
+
+// -------------------------
+// ✅ WISHLIST FUNCTIONALITY
+// -------------------------
+
+module.exports.previewWishlist = async (req, res) => {
+  try {
+    if (!req.user) {
+      const guestWishlist = req.session.wishlist || [];
+      const listings = await Listing.find({ _id: { $in: guestWishlist } }).limit(3);
+      return res.json({
+        items: listings,
+        count: guestWishlist.length,
+        guest: true
+      });
+    }
+
+    const user = await User.findById(req.user._id).populate("wishlist");
+    const topThree = user.wishlist.slice(0, 3);
+    res.json({
+      items: topThree,
+      count: user.wishlist.length,
+      guest: false
+    });
+  } catch (err) {
+    console.error("Error in previewWishlist:", err);
+    res.status(500).json({ error: "Failed to load wishlist." });
+  }
+};
+
+module.exports.syncGuestWishlist = async (req, res, next) => {
+  if (req.session.wishlist && req.user) {
+    const user = await User.findById(req.user._id);
+    const merged = new Set([
+      ...user.wishlist.map(id => id.toString()),
+      ...req.session.wishlist
+    ]);
+    user.wishlist = Array.from(merged);
+    await user.save();
+    delete req.session.wishlist;
+  }
+  next();
+};
+
+// -------------------------
+// ✅ ADMIN PROTECTION
+// -------------------------
+
+module.exports.isAdmin = (req, res, next) => {
+  if (!req.isAuthenticated() || !req.user.isAdmin) {
+    req.flash("error", "You do not have admin privileges.");
+    return res.redirect("/");
   }
   next();
 };

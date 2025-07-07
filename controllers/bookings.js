@@ -2,8 +2,9 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Booking = require("../models/bookings");
 const Listing = require("../models/listing");
-const transporter = require("../utils/email");
+const { sendStatusEmail } = require("../utils/email");
 
+// GET: Show checkout form with already booked dates
 module.exports.checkoutForm = async (req, res) => {
   const { id } = req.params;
   const listing = await Listing.findById(id);
@@ -17,6 +18,7 @@ module.exports.checkoutForm = async (req, res) => {
   res.render("bookings/checkout", { listing, bookedDates });
 };
 
+// POST: Create Razorpay order
 module.exports.createOrder = async (req, res) => {
   const { id } = req.params;
   const { checkIn, checkOut } = req.body;
@@ -32,7 +34,7 @@ module.exports.createOrder = async (req, res) => {
   });
 
   if (overlappingBookings.length > 0) {
-    return res.status(400).json({ error: "Selected dates are already booked for this listing." });
+    return res.status(400).json({ error: "Selected dates are already booked." });
   }
 
   const days = (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24);
@@ -40,17 +42,18 @@ module.exports.createOrder = async (req, res) => {
     return res.status(400).json({ error: "Check-out must be after check-in." });
   }
 
-  let price = listing.price * days;
+  const price = listing.price * days;
+
   const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
   });
 
   try {
     const order = await razorpay.orders.create({
       amount: price * 100,
       currency: "INR",
-      receipt: `receipt_${Date.now()}`,
+      receipt: `receipt_${Date.now()}`
     });
 
     res.json({
@@ -59,13 +62,14 @@ module.exports.createOrder = async (req, res) => {
       price,
       checkIn,
       checkOut,
-      listing: { _id: listing._id, title: listing.title },
+      listing: { _id: listing._id, title: listing.title }
     });
   } catch (err) {
     res.status(500).json({ error: "Failed to create Razorpay order." });
   }
 };
 
+// POST: Verify Razorpay payment and create booking
 module.exports.verifyAndCreateBooking = async (req, res) => {
   const {
     razorpay_payment_id,
@@ -79,7 +83,7 @@ module.exports.verifyAndCreateBooking = async (req, res) => {
 
   const expectedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-    .update(razorpay_order_id + "|" + razorpay_payment_id)
+    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest("hex");
 
   if (expectedSignature !== razorpay_signature) {
@@ -105,24 +109,116 @@ module.exports.verifyAndCreateBooking = async (req, res) => {
     price,
     paymentId: razorpay_payment_id,
     orderId: razorpay_order_id,
+    status: "Confirmed"
   });
 
   await booking.save();
 
-  const listing = await Listing.findById(listingId);
+  const listing = await Listing.findById(listingId).populate("owner");
 
-  await transporter.sendMail({
-    from: process.env.EMAIL,
-    to: req.user.email,
-    subject: "Booking Confirmed!",
-    html: `
-      <h1>Booking Confirmed</h1>
-      <p><strong>Listing:</strong> ${listing.title}</p>
-      <p><strong>Check In:</strong> ${checkIn}</p>
-      <p><strong>Check Out:</strong> ${checkOut}</p>
-      <p><strong>Total Price:</strong> ₹${price}</p>
-    `,
+  await sendStatusEmail(req.user.email, "Confirmed", {
+    listing,
+    checkIn,
+    checkOut,
+    price
   });
 
   res.status(200).json({ message: "Booking successful!" });
+};
+
+// POST: Cancel booking by user
+module.exports.cancelBooking = async (req, res) => {
+  const { bookingId } = req.params;
+  const booking = await Booking.findById(bookingId).populate("listing");
+
+  if (!booking || booking.status !== "Confirmed") {
+    req.flash("error", "Invalid or already cancelled/refunded booking.");
+    return res.redirect("/bookings/my");
+  }
+
+  booking.status = "Cancelled";
+  await booking.save();
+
+  await sendStatusEmail(req.user.email, "Cancelled", {
+    listing: booking.listing,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    price: booking.price
+  });
+
+  req.flash("success", "Booking cancelled.");
+  res.redirect("/bookings/my");
+};
+
+// GET: Admin panel to view all bookings
+module.exports.adminPanel = async (req, res) => {
+  const bookings = await Booking.find({})
+    .populate("listing")
+    .populate("user")
+    .sort({ createdAt: -1 });
+
+  res.render("admin/bookings", { bookings });
+};
+
+// POST: Admin confirm booking
+module.exports.confirmBooking = async (req, res) => {
+  const { bookingId } = req.params;
+  const booking = await Booking.findById(bookingId).populate("listing user");
+
+  if (!booking) {
+    req.flash("error", "Booking not found.");
+    return res.redirect("/bookings/admin");
+  }
+
+  booking.status = "Confirmed";
+  await booking.save();
+
+  await sendStatusEmail(booking.user.email, "Confirmed", {
+    listing: booking.listing,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    price: booking.price
+  });
+
+  req.flash("success", "Booking confirmed.");
+  res.redirect("/bookings/admin");
+};
+
+// POST: Admin refund booking via Razorpay
+module.exports.refundBooking = async (req, res) => {
+  const { bookingId } = req.params;
+  const booking = await Booking.findById(bookingId).populate("listing user");
+
+  if (!booking || booking.status === "Refunded") {
+    req.flash("error", "Booking already refunded or not found.");
+    return res.redirect("/bookings/admin");
+  }
+
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+  });
+
+  try {
+    await razorpay.payments.refund(booking.paymentId, {
+      amount: booking.price * 100
+    });
+
+    booking.status = "Refunded";
+    await booking.save();
+
+    await sendStatusEmail(booking.user.email, "Refunded", {
+      listing: booking.listing,
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      price: booking.price
+    });
+
+    req.flash("success", "Refund processed successfully.");
+    res.redirect("/bookings/admin");
+  } catch (err) {
+    console.error("Refund error:", err);
+    req.flash("error", "Refund failed. Please try again.");
+    res.redirect("/bookings/admin");
+  }
 };

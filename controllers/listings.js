@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const Review = require("../models/review");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 
 const mapToken = process.env.MAP_TOKEN;
@@ -43,7 +44,7 @@ module.exports.showListing = async (req, res) => {
   const listing = await Listing.findById(req.params.id)
     .populate({
       path: "reviews",
-      populate: { path: "author" },
+      populate: { path: "author" }
     })
     .populate("owner");
 
@@ -123,5 +124,51 @@ module.exports.renderEditForm = async (req, res) => {
     return res.redirect("/listings");
   }
 
-  res.render("listings/edit", { listing, originalImageUrl: listing.image?.url || "/images/default.jpg" });
+  res.render("listings/edit", {
+    listing,
+    originalImageUrl: listing.image?.url || "/images/default.jpg"
+  });
+};
+
+// CREATE REVIEW
+module.exports.createReview = async (req, res) => {
+  const listing = await Listing.findById(req.params.id).populate("reviews");
+  if (!listing) {
+    req.flash("error", "Listing not found");
+    return res.redirect("/listings");
+  }
+
+  // Check if user already submitted a review
+  const hasReviewed = listing.reviews.some(review =>
+    review.author && review.author.equals(req.user._id)
+  );
+
+  if (hasReviewed) {
+    req.flash("error", "You have already submitted a review.");
+    return res.redirect(`/listings/${listing._id}`);
+  }
+
+  const review = new Review(req.body.review);
+  review.author = req.user._id;
+  await review.save();
+
+  listing.reviews.push(review);
+  await listing.save();
+
+  req.flash("success", "Review added!");
+  res.redirect(`/listings/${listing._id}`);
+};
+
+// DELETE REVIEW
+module.exports.destroyReview = async (req, res) => {
+  const { id, reviewId } = req.params;
+
+  await Listing.findByIdAndUpdate(id, {
+    $pull: { reviews: reviewId }
+  });
+
+  await Review.findByIdAndDelete(reviewId);
+
+  req.flash("success", "Review deleted!");
+  res.redirect(`/listings/${id}`);
 };

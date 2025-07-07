@@ -1,9 +1,43 @@
 <style>
+  .navbar {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .navbar-brand i {
+    font-size: 1.5rem;
+    color: #fe424d;
+    transition: transform 0.3s;
+  }
+
+  .navbar-brand i:hover {
+    transform: scale(1.2);
+  }
+
+  .search-inp,
+  .filter-select {
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.2s ease-in-out;
+  }
+
+  .search-inp:focus,
+  .filter-select:focus {
+    border-color: #fe424d;
+    box-shadow: 0 0 0 0.2rem rgba(254, 66, 77, 0.25);
+    outline: none;
+  }
+
   .search-btn {
     background-color: #fe424d;
     color: #fff;
     border-radius: 25px;
-    padding: 0 1rem;
+    padding: 0.5rem 1.5rem;
+    transition: background-color 0.3s;
   }
 
   .search-btn:hover {
@@ -15,36 +49,74 @@
     margin-right: 0.5rem;
   }
 
-  .search-inp,
-  .filter-select {
-    border-radius: 25px;
-    padding: 0.5rem 1rem;
-    margin-right: 0.5rem;
+  .wishlist-icon {
+    font-size: 1.5rem;
+    position: relative;
+    color: #fe424d;
+    transition: transform 0.2s;
+  }
+
+  .wishlist-icon:hover {
+    transform: scale(1.2);
+  }
+
+  .wishlist-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+  }
+
+  .dropdown-menu-wishlist {
+    min-width: 250px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+  }
+
+  .dropdown-item-wishlist {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-link {
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: #fe424d;
+  }
+
+  .navbar-text {
+    font-weight: 500;
+    color: #343a40;
   }
 </style>
 
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+<nav class="navbar navbar-expand-md sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand" href="/listings">
       <i class="fa-solid fa-compass"></i>
     </a>
 
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNavAltMarkup"
-    >
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <!-- Left: Explore -->
+      <!-- Left Nav -->
       <div class="navbar-nav">
         <a class="nav-link" href="/listings">Explore</a>
       </div>
 
-      <!-- Center: Search and Category -->
+      <!-- Search Center -->
       <div class="navbar-nav ms-auto me-3">
         <form class="d-flex" role="search" action="/listings" method="GET">
           <input
@@ -54,35 +126,49 @@
             placeholder="Search destinations"
             value="<%= typeof searchParams !== 'undefined' && searchParams.q ? searchParams.q : '' %>"
           />
-
           <select name="category" class="form-select filter-select">
             <option value="all">All Categories</option>
             <% if (typeof categories !== 'undefined') { %>
               <% for (let cat of categories) { %>
-                <option
-                  value="<%= cat %>"
-                  <%= (searchParams && searchParams.category === cat) ? "selected" : "" %>
-                >
+                <option value="<%= cat %>" <%= (searchParams && searchParams.category === cat) ? "selected" : "" %>>
                   <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
                 </option>
               <% } %>
             <% } %>
           </select>
-
           <button class="btn search-btn" type="submit">
             <i class="fa-solid fa-magnifying-glass"></i>Search
           </button>
         </form>
       </div>
 
-      <!-- Right: Auth -->
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/listings/new">Airbnb your home</a>
+      <!-- Right: Wishlist + Auth -->
+      <div class="navbar-nav ms-auto align-items-center gap-2">
+        <!-- Wishlist -->
+        <div class="nav-item dropdown">
+          <a
+            class="nav-link wishlist-icon dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            id="wishlistDropdown"
+          >
+            <i class="fa fa-heart"></i>
+            <span class="wishlist-badge" id="wishlistCount"><%= typeof wishlistCount !== "undefined" ? wishlistCount : 0 %></span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-wishlist" id="wishlistPreview">
+            <li class="dropdown-item text-muted">Loading...</li>
+          </ul>
+        </div>
 
+        <!-- Auth Links -->
+        <a class="nav-link" href="/listings/new">Airbnb your home</a>
         <% if (!currentUser) { %>
           <a class="nav-link" href="/signup">Sign up</a>
           <a class="nav-link" href="/login">Log in</a>
         <% } else { %>
+          <a class="nav-link" href="/bookings/my">My Bookings</a>
           <span class="navbar-text me-2">Welcome, <%= currentUser.username %></span>
           <a class="nav-link" href="/logout">Log out</a>
         <% } %>
@@ -90,3 +176,41 @@
     </div>
   </div>
 </nav>
+
+<script>
+  async function loadWishlist() {
+    try {
+      const res = await fetch("/wishlist/preview");
+      const { items, count } = await res.json();
+
+      const badge = document.getElementById("wishlistCount");
+      const preview = document.getElementById("wishlistPreview");
+
+      badge.textContent = count;
+
+      if (items.length === 0) {
+        preview.innerHTML = `<li class="dropdown-item text-muted">No items yet.</li>`;
+      } else {
+        preview.innerHTML = "";
+        items.slice(0, 3).forEach(item => {
+          const li = document.createElement("li");
+          li.className = "dropdown-item dropdown-item-wishlist";
+          li.innerHTML = `<a href="/listings/${item._id}" class="text-decoration-none">${item.title}</a>`;
+          preview.appendChild(li);
+        });
+
+        if (count > 3) {
+          const viewAll = document.createElement("li");
+          viewAll.innerHTML = `<a class="dropdown-item text-center" href="/wishlist">View all (${count})</a>`;
+          preview.appendChild(viewAll);
+        }
+      }
+    } catch (err) {
+      console.error("Wishlist load error:", err);
+      const preview = document.getElementById("wishlistPreview");
+      preview.innerHTML = `<li class="dropdown-item text-danger">Failed to load.</li>`;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadWishlist);
+</script>

@@ -195,3 +195,9 @@
   -webkit-transition: background-position .7s;
   transition: background-position .7s;
 }
+
+.star-rating i {
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
