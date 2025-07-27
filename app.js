@@ -104,6 +104,14 @@ app.get("/", (req, res) => {
   res.redirect("/listings");
 });
 
+app.get("/privacy", (req, res) => {
+  res.render("static/privacy");
+});
+
+app.get("/terms", (req, res) => {
+  res.render("static/terms");
+});
+
 
 // ✅ 404 Handler
 app.all("*", (req, res, next) => {
