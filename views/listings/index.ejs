@@ -14,161 +14,174 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 1rem;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     background: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   }
 
   .listing-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
   }
 
   .card-img-top {
     object-fit: cover;
-    border-bottom: 1px solid #eaeaea;
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
+    height: 240px;
+    width: 100%;
+    border-radius: 1rem 1rem 0 0;
   }
 
   .card-body {
     padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
-  .card-body b {
-    font-size: 1.1rem;
-    color: #333;
+  .card-body h5 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+    color: #212529;
+  }
+
+  .listing-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .listing-link:hover {
+    color: #000;
   }
 
   .wishlist-toggle {
-    font-size: 1.4rem;
-    transition: all 0.2s ease;
+    font-size: 1.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
   }
 
   .wishlist-toggle:hover {
     transform: scale(1.25);
     color: red;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
   }
 
   .wishlist-toggle.wishlisted {
     color: red;
   }
 
-  .listing-link {
-    text-decoration: none;
-    color: #212529;
+  .tax-info {
+    font-size: 0.85rem;
+    color: #888;
+    display: none;
   }
 
-  .listing-link:hover {
-    text-decoration: none;
-    color: #000;
-  }
-
-  .tax-toggle {
-    background: #fff;
-    border: 1px solid #ccc;
+  /* Filters */
+  #filters {
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: #ffffff;
+    border-radius: 1rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-direction: row;
+  }
+
+  .filter {
+    flex: 0 0 auto;
+    text-align: center;
+    scroll-snap-align: start;
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    background: #f7f7f9;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    border: 1px solid transparent;
+  }
+
+  .filter:hover {
+    background: linear-gradient(to right, #edf0f4, #f5f8fb);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .active-filter {
+    background-color: #0d6efd !important;
+    color: #fff;
+    border: 1px solid #0a58ca;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
   }
 
   .filter i {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.25rem;
   }
 
   .filter p {
     font-size: 0.75rem;
+    margin: 0;
     font-weight: 500;
-    color: #444;
   }
 
-  #filters {
-    padding: 0.75rem 1rem;
-    background-color: #ffffff;
-    border-radius: 0.75rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  .tax-toggle {
+    padding: 0.6rem 1rem;
+    background: #fefefe;
+    border-radius: 999px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    margin-left: auto;
   }
 
-  .active-filter {
-    font-weight: bold;
-    color: #000;
-    border-bottom: 2px solid #000;
+  .tax-toggle:hover {
+    background: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .tax-info {
-    font-size: 0.85rem;
-    color: #888;
-  }
-
-  @media (max-width: 768px) {
+  @media (max-width: 576px) {
     .card-body {
       padding: 1rem;
     }
+
+    #filters {
+      gap: 0.6rem;
+      padding: 0.75rem;
+      flex-wrap: nowrap;
+    }
+
+    .filter {
+      padding: 0.45rem 0.75rem;
+    }
+
+    .tax-toggle {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+    }
   }
-
-
-#filters {
-  display: flex;
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  background: #ffffff;
-  border-radius: 1rem;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.filter {
-  flex: 0 0 auto;
-  text-align: center;
-  scroll-snap-align: start;
-  padding: 0.6rem 1rem;
-  border-radius: 999px;
-  background: #f7f7f9;
-  transition: all 0.25s ease;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  border: 1px solid transparent;
-}
-
-.filter:hover {
-  background: linear-gradient(to right, #edf0f4, #f5f8fb);
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.active-filter {
-  background-color: #0d6efd !important;
-  color: #fff;
-  border: 1px solid #0a58ca;
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
-}
-
-.filter i {
-  font-size: 1.1rem;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.filter p {
-  font-size: 0.75rem;
-  margin: 0;
-  font-weight: 500;
-}
-
-@media (max-width: 576px) {
-  #filters {
-    gap: 0.75rem;
-    padding: 1rem;
-  }
-
-  .filter {
-    padding: 0.5rem 0.8rem;
-  }
-}
-
-
 </style>
-<!-- Category Filter -->
+
+<!-- Filters -->
 <div id="filters">
   <% ["Trending", "Room", "Iconic Cities", "Mountains", "Castles", "Amazing Pools", "Camping", "Farms", "Arctic", "Domes", "Boats"].forEach(category => { %>
     <a href="/listings?category=<%= category %>" class="listing-link">
@@ -191,40 +204,45 @@
     </a>
   <% }); %>
 
-  <a href="/listings" class="btn btn-outline-secondary ms-3 mt-3">All Listings</a>
-
   <div class="tax-toggle">
-    <div class="form-check-reverse form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault" />
-      <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+    <div class="d-flex align-items-center gap-2">
+      <label class="form-check-label m-0" for="switchCheckDefault" style="font-weight: 500;">
+        Show total with tax
+      </label>
+      <div class="form-check form-switch m-0">
+        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault" />
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Listings Grid -->
-<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+<div class="row g-4 mt-3">
   <% if (allListings && allListings.length) { %>
     <% for (let listing of allListings) { %>
-      <div class="card col listing-card mb-4">
-        <a href="/listings/<%= listing._id %>" class="listing-link">
-          <img
-            src="<%= listing.image?.url || 'https://example.com/default-image.jpg' %>"
-            class="card-img-top"
-            alt="<%= listing.title %> image"
-            style="height: 20rem"
-          />
-        </a>
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <a href="/listings/<%= listing._id %>" class="listing-link flex-grow-1">
-              <b><%= listing.title %></b><br />
-              ₹<span class="base-price"><%= listing.price %></span>/night
-              <span class="tax-info"> + GST ₹<span class="gst"></span> (18%)</span><br>
-              <span class="tax-info">Total: ₹<span class="total-price"></span></span>
+      <div class="col-lg-4 col-md-6 col-sm-12">
+        <div class="listing-card">
+          <div class="position-relative">
+            <a href="/listings/<%= listing._id %>" class="listing-link">
+              <img
+                src="<%= listing.image?.url || 'https://example.com/default-image.jpg' %>"
+                class="card-img-top"
+                alt="<%= listing.title %> image"
+              />
             </a>
             <button class="wishlist-toggle <%= currentUser && currentUser.wishlist.includes(listing._id) ? 'wishlisted' : '' %>" data-id="<%= listing._id %>">
               <% if (currentUser && currentUser.wishlist.includes(listing._id)) { %>❤️<% } else if (!currentUser && guestWishlist.includes(listing._id.toString())) { %>❤️<% } else { %>🤍<% } %>
             </button>
+          </div>
+          <div class="card-body">
+            <a href="/listings/<%= listing._id %>" class="listing-link">
+              <h5><%= listing.title %></h5>
+              <div class="text-muted small">₹<span class="base-price"><%= listing.price %></span>/night</div>
+              <div class="tax-info small mt-1">
+                + GST ₹<span class="gst"></span> (18%)<br />
+                Total: ₹<span class="total-price"></span>
+              </div>
+            </a>
           </div>
         </div>
       </div>
