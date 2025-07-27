@@ -101,8 +101,9 @@ app.use("/wishlist", wishlistRoutes);
 
 // ✅ Home Route
 app.get("/", (req, res) => {
-  res.render("home");
+  res.redirect("/listings");
 });
+
 
 // ✅ 404 Handler
 app.all("*", (req, res, next) => {
