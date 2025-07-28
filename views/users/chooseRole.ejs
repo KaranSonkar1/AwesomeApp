@@ -1,0 +1,14 @@
+<%- include("../layouts/boilerplate") %>
+<div class="container py-5">
+  <h2>Choose Your Role</h2>
+  <p>Please select if you want to register as a <strong>client</strong> or an <strong>owner</strong>.</p>
+  <form action="/choose-role" method="POST">
+    <div>
+      <label><input type="radio" name="role" value="client" required> Client (book & wishlist only)</label>
+    </div>
+    <div>
+      <label><input type="radio" name="role" value="owner" required> Owner (can list properties)</label>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Confirm Role</button>
+  </form>
+</div>

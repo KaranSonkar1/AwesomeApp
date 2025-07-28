@@ -23,6 +23,11 @@ router
     userController.login
   );
 
+
 router.get("/logout", userController.logout);
+
+router.get("/choose-role", userController.renderRoleForm);
+router.post("/choose-role", wrapAsync(userController.assignRole));
+
 
 module.exports = router;

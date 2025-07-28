@@ -64,6 +64,19 @@
         </div>
       </div>
 
+      <!-- Role Selection -->
+      <div class="mb-3">
+        <label for="role" class="form-label">Choose your role</label>
+        <select class="form-select" id="role" name="role" required>
+          <option value="">Select role</option>
+          <option value="owner">Owner</option>
+          <option value="client">Client</option>
+        </select>
+        <div class="invalid-feedback">
+          Please select your role.
+        </div>
+      </div>
+
       <div class="text-center">
         <button type="submit" class="btn btn-success w-100">Sign Up</button>
       </div>
@@ -73,7 +86,6 @@
 </div>
 
 <script>
-  // Bootstrap validation
   (() => {
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');

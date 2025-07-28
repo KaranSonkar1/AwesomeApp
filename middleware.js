@@ -25,14 +25,20 @@ module.exports.saveRedirectUrl = (req, res, next) => {
   next();
 };
 
-module.exports.isOwner = async (req, res, next) => {
-  const { id } = req.params;
-  const listing = await Listing.findById(id);
-  if (!listing || !listing.owner.equals(req.user._id)) {
-    req.flash("error", "You are not the owner of this listing.");
-    return res.redirect(`/listings/${id}`);
+module.exports.isOwner = (req, res, next) => {
+  if (req.isAuthenticated() && req.user.role === "owner") {
+    return next();
   }
-  next();
+  req.flash("error", "Only Owners can perform this action.");
+  res.redirect("/listings");
+};
+
+module.exports.isClient = (req, res, next) => {
+  if (req.isAuthenticated() && req.user.role === "client") {
+    return next();
+  }
+  req.flash("error", "Only Clients can perform this action.");
+  res.redirect("/listings");
 };
 
 module.exports.isReviewAuthor = async (req, res, next) => {

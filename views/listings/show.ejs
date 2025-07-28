@@ -12,11 +12,19 @@
         <img src="<%= listing.image?.url || '/images/default.jpg' %>" class="card-img-top" style="object-fit: cover; height: 25rem;" />
 
         <!-- Wishlist Button -->
-        <button class="wishlist-toggle position-absolute top-0 end-0 m-3 fs-3 bg-white rounded-circle border-0 px-2 py-1 shadow
-          <%= currentUser && currentUser.wishlist.includes(listing._id) ? 'wishlisted' : '' %>"
-          data-id="<%= listing._id %>">
-          <% if (currentUser && currentUser.wishlist.includes(listing._id)) { %>❤️<% } else if (!currentUser && guestWishlist.includes(listing._id.toString())) { %>❤️<% } else { %>🤍<% } %>
-        </button>
+        <% if (currentUser && currentUser.role === "client") { %>
+          <button class="wishlist-toggle position-absolute top-0 end-0 m-3 fs-3 bg-white rounded-circle border-0 px-2 py-1 shadow
+            <%= currentUser.wishlist.includes(listing._id) ? 'wishlisted' : '' %>"
+            data-id="<%= listing._id %>">
+            <%= currentUser.wishlist.includes(listing._id) ? '❤️' : '🤍' %>
+          </button>
+        <% } else if (!currentUser && guestWishlist.includes(listing._id.toString())) { %>
+          <button class="wishlist-toggle position-absolute top-0 end-0 m-3 fs-3 bg-white rounded-circle border-0 px-2 py-1 shadow wishlisted"
+            data-id="<%= listing._id %>">❤️</button>
+        <% } else if (!currentUser) { %>
+          <button class="wishlist-toggle position-absolute top-0 end-0 m-3 fs-3 bg-white rounded-circle border-0 px-2 py-1 shadow"
+            data-id="<%= listing._id %>">🤍</button>
+        <% } %>
 
         <div class="card-body">
           <h2 class="card-title mb-2"><%= listing.title %></h2>
@@ -27,7 +35,7 @@
 
           <% if (!currentUser) { %>
             <a href="/login" class="btn btn-warning btn-lg mt-3">Login to Book</a>
-          <% } else { %>
+          <% } else if (currentUser.role === "client") { %>
             <a href="/bookings/<%= listing._id %>/checkout" class="btn btn-success btn-lg mt-3">Book Now</a>
           <% } %>
         </div>
@@ -46,7 +54,7 @@
       <div class="mt-5">
         <h3>Reviews</h3>
 
-        <% if (currentUser) { %>
+        <% if (currentUser && currentUser.role === 'client') { %>
           <button class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#reviewModal">Leave a Review</button>
         <% } %>
 
@@ -89,36 +97,38 @@
 </section>
 
 <!-- Review Modal -->
-<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form action="/listings/<%= listing._id %>/reviews" method="POST">
-        <div class="modal-header">
-          <h5 class="modal-title" id="reviewModalLabel">Leave a Review</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Rating</label>
-            <div class="star-rating">
-              <% for (let i = 1; i <= 5; i++) { %>
-                <i class="fa fa-star" data-value="<%= i %>"></i>
-              <% } %>
-              <input type="hidden" name="review[rating]" id="ratingValue" value="0" required />
+<% if (currentUser && currentUser.role === 'client') { %>
+  <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action="/listings/<%= listing._id %>/reviews" method="POST">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reviewModalLabel">Leave a Review</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Rating</label>
+              <div class="star-rating">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <i class="fa fa-star" data-value="<%= i %>"></i>
+                <% } %>
+                <input type="hidden" name="review[rating]" id="ratingValue" value="0" required />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="comment" class="form-label">Comment</label>
+              <textarea name="review[comment]" id="comment" class="form-control" rows="3" required></textarea>
             </div>
           </div>
-          <div class="mb-3">
-            <label for="comment" class="form-label">Comment</label>
-            <textarea name="review[comment]" id="comment" class="form-control" rows="3" required></textarea>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit Review</button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Submit Review</button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+<% } %>
 
 <style>
   .star-rating i {

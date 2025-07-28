@@ -116,7 +116,7 @@
         <a class="nav-link" href="/listings">Explore</a>
       </div>
 
-      <!-- Search Center -->
+      <!-- Center Search -->
       <div class="navbar-nav ms-auto me-3">
         <form class="d-flex" role="search" action="/listings" method="GET">
           <input
@@ -142,41 +142,49 @@
         </form>
       </div>
 
-      <!-- Right: Wishlist + Auth -->
+      <!-- Right Nav -->
       <div class="navbar-nav ms-auto align-items-center gap-2">
-        <!-- Wishlist -->
-        <div class="nav-item dropdown">
-          <a
-            class="nav-link wishlist-icon dropdown-toggle"
-            href="#"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            id="wishlistDropdown"
-          >
-            <i class="fa fa-heart"></i>
-            <span class="wishlist-badge" id="wishlistCount"><%= typeof wishlistCount !== "undefined" ? wishlistCount : 0 %></span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-wishlist" id="wishlistPreview">
-            <li class="dropdown-item text-muted">Loading...</li>
-          </ul>
-        </div>
+        <% if (currentUser && currentUser.role === 'client') { %>
+          <!-- Wishlist for client only -->
+          <div class="nav-item dropdown">
+            <a
+              class="nav-link wishlist-icon dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              id="wishlistDropdown"
+            >
+              <i class="fa fa-heart"></i>
+              <span class="wishlist-badge" id="wishlistCount">
+                <%= typeof wishlistCount !== "undefined" ? wishlistCount : 0 %>
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-wishlist" id="wishlistPreview">
+              <li class="dropdown-item text-muted">Loading...</li>
+            </ul>
+          </div>
+        <% } %>
 
-        <!-- Auth Links -->
-        <a class="nav-link" href="/listings/new">Airbnb your home</a>
-        <% if (!currentUser) { %>
-          <a class="nav-link" href="/signup">Sign up</a>
-          <a class="nav-link" href="/login">Log in</a>
-        <% } else { %>
+        <% if (currentUser && currentUser.role === 'owner') { %>
+          <!-- Listing creation for owners only -->
+          <a class="nav-link" href="/listings/new">Airbnb your home</a>
+        <% } %>
+
+        <% if (currentUser) { %>
           <a class="nav-link" href="/bookings/my">My Bookings</a>
           <span class="navbar-text me-2">Welcome, <%= currentUser.username %></span>
           <a class="nav-link" href="/logout">Log out</a>
+        <% } else { %>
+          <a class="nav-link" href="/signup">Sign up</a>
+          <a class="nav-link" href="/login">Log in</a>
         <% } %>
       </div>
     </div>
   </div>
 </nav>
 
+<!-- Wishlist Preview Loader -->
 <script>
   async function loadWishlist() {
     try {
