@@ -4,7 +4,7 @@ const { isLoggedIn, previewWishlist } = require("../middleware");
 const Listing = require("../models/listing");
 const User = require("../models/user");
 
-// Toggle wishlist (for both logged-in and guests)
+// ✅ Toggle wishlist
 router.post("/toggle/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -41,7 +41,13 @@ router.post("/toggle/:id", async (req, res) => {
   }
 });
 
-// ✅ Preview wishlist for navbar dropdown
+// ✅ Show My Wishlist (Main Page)
+router.get("/", isLoggedIn, async (req, res) => {
+  const user = await User.findById(req.user._id).populate("wishlist");
+  res.render("wishlist/index", { listings: user.wishlist });
+});
+
+// ✅ Preview Wishlist for Navbar Dropdown
 router.get("/preview", previewWishlist);
 
 module.exports = router;

@@ -1,0 +1,46 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4">👤 My Profile</h2>
+
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <strong>Username:</strong>
+              <span><%= user.username %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <strong>Email:</strong>
+              <span><%= user.email || "Not provided" %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <strong>Role:</strong>
+              <span><%= user.role || "Not set" %></span>
+            </li>
+          </ul>
+
+          <hr>
+
+          <h5 class="mb-3">🔗 Quick Access</h5>
+          <ul class="list-group">
+            <% if (user.role === "client") { %>
+              <li class="list-group-item">
+                <a href="/wishlist" class="text-decoration-none">
+                  💖 My Wishlist
+                </a>
+              </li>
+            <% } %>
+            <li class="list-group-item">
+              <a href="/bookings/my" class="text-decoration-none">
+                📅 My Bookings
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,28 +1,22 @@
 <% layout("layouts/boilerplate") %>
 
-<div class="container mt-5">
-  <h3>My Wishlist</h3>
+<h1>My Wishlist</h1>
 
+<div class="row">
   <% if (listings.length === 0) { %>
-    <div class="alert alert-info">You have no items in your wishlist.</div>
-  <% } %>
-
-  <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
-    <% listings.forEach(l => { %>
-      <div class="col">
+    <p class="text-muted">You have no listings in your wishlist.</p>
+  <% } else { %>
+    <% listings.forEach(listing => { %>
+      <div class="col-md-4 mb-3">
         <div class="card">
-          <a href="/listings/<%= l._id %>">
-            <img src="<%= l.image?.url || '/images/default.jpg' %>" class="card-img-top" alt="<%= l.title %>">
-          </a>
+          <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>">
           <div class="card-body">
-            <h5 class="card-title"><%= l.title %></h5>
-            <p class="card-text">₹<%= l.price %>/night</p>
-            <form action="/wishlist/<%= l._id %>/remove?_method=DELETE" method="POST">
-              <button class="btn btn-sm btn-danger">Remove</button>
-            </form>
+            <h5 class="card-title"><%= listing.title %></h5>
+            <p class="card-text"><%= listing.description %></p>
+            <a href="/listings/<%= listing._id %>" class="btn btn-primary">View Listing</a>
           </div>
         </div>
       </div>
     <% }) %>
-  </div>
+  <% } %>
 </div>

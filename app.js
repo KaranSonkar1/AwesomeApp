@@ -18,6 +18,7 @@ const User = require("./models/user");
 const listingRoutes = require("./routes/listing");
 const userRoutes = require("./routes/user");
 const bookingRoutes = require("./routes/bookings");
+
 const wishlistRoutes = require("./routes/wishlist");
 
 // Middleware
