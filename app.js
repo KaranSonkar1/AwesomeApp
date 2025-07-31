@@ -1,4 +1,7 @@
-if (process.env.NODE_ENV !== "production") require("dotenv").config();
+// ✅ Load environment variables (only in development)
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const express = require("express");
 const app = express();
@@ -18,13 +21,14 @@ const User = require("./models/user");
 const listingRoutes = require("./routes/listing");
 const userRoutes = require("./routes/user");
 const bookingRoutes = require("./routes/bookings");
-
 const wishlistRoutes = require("./routes/wishlist");
+const premiumRoutes = require("./routes/premium");
+const monetizationRoutes = require("./routes/monetization");
 
 // Middleware
 const { syncGuestWishlist } = require("./middleware");
 
-// ✅ MongoDB Connection
+// ==================== MongoDB Connection ====================
 const dbUrl = process.env.ATLASDB_URL;
 
 mongoose
@@ -32,75 +36,76 @@ mongoose
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// ✅ View Engine Setup
+// ==================== View Engine ====================
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// ✅ Middleware Setup
+// ==================== Middleware ====================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ Session Store (connect-mongo)
+// ==================== Session Store ====================
 const store = MongoStore.create({
   mongoUrl: dbUrl,
   crypto: {
     secret: process.env.SECRET,
   },
-  touchAfter: 24 * 3600 // session will only update once in 24 hours
+  touchAfter: 24 * 3600 // Update session only once every 24 hrs
 });
 
 store.on("error", function (e) {
   console.log("❌ SESSION STORE ERROR", e);
 });
 
-// ✅ Session Configuration
 const sessionConfig = {
   store,
-  name: "session", // to avoid default "connect.sid"
+  name: "session", // Avoids default 'connect.sid'
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    // secure: true, // enable in production with HTTPS
+    // secure: true, // Enable when using HTTPS in production
     sameSite: "lax",
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 1 week
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  },
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  }
 };
 
 app.use(session(sessionConfig));
 app.use(flash());
 
-// ✅ Passport Configuration
+// ==================== Passport ====================
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// ✅ Sync guest wishlist on login
+// ==================== Guest Wishlist Sync on Login ====================
 app.use(syncGuestWishlist);
 
-// ✅ Global Template Variables
+// ==================== Global Template Variables ====================
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
-  res.locals.guestWishlist = req.session.wishlist || [];
+  res.locals.guestWishlist = req.session.guestWishlist || []; // ✅ fixed name
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
 
-// ✅ Routes
+// ==================== Routes ====================
 app.use("/", userRoutes);
 app.use("/listings", listingRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/wishlist", wishlistRoutes);
+app.use("/premium", premiumRoutes);
+app.use("/monetization", monetizationRoutes);
 
-// ✅ Home Route
+// ==================== Static Pages ====================
 app.get("/", (req, res) => {
   res.redirect("/listings");
 });
@@ -113,13 +118,12 @@ app.get("/terms", (req, res) => {
   res.render("static/terms");
 });
 
-
-// ✅ 404 Handler
+// ==================== 404 Handler ====================
 app.all("*", (req, res, next) => {
   next(new ExpressError(404, "Page not found!"));
 });
 
-// ✅ Centralized Error Handler
+// ==================== Error Handler ====================
 app.use((err, req, res, next) => {
   const { statusCode = 500 } = err;
   if (!err.message) err.message = "Something went wrong!";
@@ -129,7 +133,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ Start Server
-app.listen(8080, () => {
-  console.log("🚀 Server running on http://localhost:8080");
+// ==================== Start Server ====================
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

@@ -1,10 +1,13 @@
+// controllers/bookings.js
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Booking = require("../models/bookings");
 const Listing = require("../models/listing");
 const { sendStatusEmail } = require("../utils/email");
 
-// GET: Show checkout form with already booked dates
+const SERVICE_FEE_PERCENT = 5; // You earn this % on each booking
+
+// ✅ GET: Show checkout form with already booked dates
 module.exports.checkoutForm = async (req, res) => {
   const { id } = req.params;
   const listing = await Listing.findById(id);
@@ -18,7 +21,7 @@ module.exports.checkoutForm = async (req, res) => {
   res.render("bookings/checkout", { listing, bookedDates });
 };
 
-// POST: Create Razorpay order
+// ✅ POST: Create Razorpay order
 module.exports.createOrder = async (req, res) => {
   const { id } = req.params;
   const { checkIn, checkOut } = req.body;
@@ -26,23 +29,27 @@ module.exports.createOrder = async (req, res) => {
 
   if (!listing) return res.status(404).json({ error: "Listing not found." });
 
+  // Prevent overlapping bookings
   const overlappingBookings = await Booking.find({
     listing: id,
     $or: [
       { checkIn: { $lt: checkOut }, checkOut: { $gt: checkIn } }
     ]
   });
-
   if (overlappingBookings.length > 0) {
     return res.status(400).json({ error: "Selected dates are already booked." });
   }
 
+  // Calculate number of days
   const days = (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24);
   if (isNaN(days) || days <= 0) {
     return res.status(400).json({ error: "Check-out must be after check-in." });
   }
 
-  const price = listing.price * days;
+  // ✅ Price calculation with Service Fee
+  const totalAmount = listing.price * days;
+  const serviceFee = (totalAmount * SERVICE_FEE_PERCENT) / 100;
+  const grandTotal = totalAmount + serviceFee;
 
   const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -51,7 +58,7 @@ module.exports.createOrder = async (req, res) => {
 
   try {
     const order = await razorpay.orders.create({
-      amount: price * 100,
+      amount: grandTotal * 100, // in paise
       currency: "INR",
       receipt: `receipt_${Date.now()}`
     });
@@ -59,7 +66,9 @@ module.exports.createOrder = async (req, res) => {
     res.json({
       key: process.env.RAZORPAY_KEY_ID,
       order,
-      price,
+      totalAmount,
+      serviceFee,
+      grandTotal,
       checkIn,
       checkOut,
       listing: { _id: listing._id, title: listing.title }
@@ -69,7 +78,7 @@ module.exports.createOrder = async (req, res) => {
   }
 };
 
-// POST: Verify Razorpay payment and create booking
+// ✅ POST: Verify Razorpay payment and create booking
 module.exports.verifyAndCreateBooking = async (req, res) => {
   const {
     razorpay_payment_id,
@@ -78,7 +87,7 @@ module.exports.verifyAndCreateBooking = async (req, res) => {
     listingId,
     checkIn,
     checkOut,
-    price
+    grandTotal
   } = req.body;
 
   const expectedSignature = crypto
@@ -90,28 +99,28 @@ module.exports.verifyAndCreateBooking = async (req, res) => {
     return res.status(400).json({ error: "Payment verification failed" });
   }
 
+  // Final check for overlapping bookings
   const overlapping = await Booking.find({
     listing: listingId,
     $or: [
       { checkIn: { $lt: checkOut }, checkOut: { $gt: checkIn } }
     ]
   });
-
   if (overlapping.length > 0) {
     return res.status(400).json({ error: "Dates were booked just now. Try different dates." });
   }
 
+  // Save booking with service fee details
   const booking = new Booking({
     listing: listingId,
     user: req.user._id,
     checkIn,
     checkOut,
-    price,
+    price: grandTotal,
     paymentId: razorpay_payment_id,
     orderId: razorpay_order_id,
     status: "Confirmed"
   });
-
   await booking.save();
 
   const listing = await Listing.findById(listingId).populate("owner");
@@ -120,13 +129,13 @@ module.exports.verifyAndCreateBooking = async (req, res) => {
     listing,
     checkIn,
     checkOut,
-    price
+    price: grandTotal
   });
 
   res.status(200).json({ message: "Booking successful!" });
 };
 
-// POST: Cancel booking by user
+// ✅ POST: Cancel booking by user
 module.exports.cancelBooking = async (req, res) => {
   const { bookingId } = req.params;
   const booking = await Booking.findById(bookingId).populate("listing");
@@ -150,7 +159,7 @@ module.exports.cancelBooking = async (req, res) => {
   res.redirect("/bookings/my");
 };
 
-// GET: Admin panel to view all bookings
+// ✅ GET: Admin panel to view all bookings
 module.exports.adminPanel = async (req, res) => {
   const bookings = await Booking.find({})
     .populate("listing")
@@ -160,7 +169,7 @@ module.exports.adminPanel = async (req, res) => {
   res.render("admin/bookings", { bookings });
 };
 
-// POST: Admin confirm booking
+// ✅ POST: Admin confirm booking
 module.exports.confirmBooking = async (req, res) => {
   const { bookingId } = req.params;
   const booking = await Booking.findById(bookingId).populate("listing user");
@@ -184,7 +193,7 @@ module.exports.confirmBooking = async (req, res) => {
   res.redirect("/bookings/admin");
 };
 
-// POST: Admin refund booking via Razorpay
+// ✅ POST: Admin refund booking via Razorpay
 module.exports.refundBooking = async (req, res) => {
   const { bookingId } = req.params;
   const booking = await Booking.findById(bookingId).populate("listing user");

@@ -1,0 +1,73 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container my-5 d-flex justify-content-center">
+  <div class="card shadow-lg border-0 rounded-4 premium-card text-center p-4" style="max-width: 350px;">
+    <div class="card-body">
+      <h3 class="card-title mb-3 text-warning fw-bold">
+        <i class="fa-solid fa-crown"></i> Go Premium
+      </h3>
+      <p class="text-muted small">
+        Get featured listings, higher visibility, and priority bookings for only:
+      </p>
+      <h4 class="fw-bold text-dark mb-4">₹999/month</h4>
+      <button id="payBtn" class="btn btn-warning btn-lg w-100 fw-bold shadow-sm">
+        <i class="fa-solid fa-bolt"></i> Subscribe Now
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  document.getElementById("payBtn").addEventListener("click", async function () {
+    try {
+      const res = await fetch("/premium/create-order", { method: "POST" });
+      const order = await res.json();
+
+      const options = {
+        key: "<%= razorpayKey %>",
+        amount: order.amount,
+        currency: order.currency,
+        name: "MyBookingPortal Premium",
+        description: "Premium Subscription",
+        order_id: order.id,
+        handler: async function (response) {
+          const verifyRes = await fetch("/premium/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response)
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            alert("🎉 Payment successful! Premium activated.");
+            window.location.href = "/listings";
+          } else {
+            alert("❌ Payment verification failed.");
+          }
+        },
+        theme: { color: "#FE424D" }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error(err);
+      alert("Error initiating payment.");
+    }
+  });
+</script>
+
+<style>
+  .premium-card {
+    background: linear-gradient(145deg, #fff8e1, #ffffff);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .premium-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+  .premium-card .fa-crown {
+    color: gold;
+  }
+</style>

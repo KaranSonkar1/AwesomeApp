@@ -1,0 +1,41 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="container my-5">
+  <div class="card shadow p-4 text-center" style="max-width: 400px; margin: auto;">
+    <h3>Premium Subscription</h3>
+    <p>Boost visibility & earn more bookings</p>
+    <h2 class="text-warning">₹999/month</h2>
+    <button id="payBtn" class="btn btn-warning btn-lg">Subscribe Now</button>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById("payBtn").addEventListener("click", async function () {
+  const res = await fetch("/monetization/create-order", { method: "POST" });
+  const order = await res.json();
+
+  const options = {
+    key: "<%= razorpayKey %>",
+    amount: order.amount,
+    currency: order.currency,
+    name: "Premium Subscription",
+    order_id: order.id,
+    handler: async function (response) {
+      const verify = await fetch("/monetization/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...response, type: "subscription", amount: order.amount })
+      });
+      const result = await verify.json();
+      if (result.success) {
+        alert("Payment successful!");
+        location.href = "/listings";
+      } else {
+        alert("Payment failed!");
+      }
+    }
+  };
+  new Razorpay(options).open();
+});
+</script>

@@ -146,3 +146,36 @@ module.exports.isAdmin = (req, res, next) => {
   }
   next();
 };
+
+// -------------------------
+// 💰 MONETIZATION MIDDLEWARE
+// -------------------------
+
+// Check if Owner is Premium
+module.exports.isPremiumOwner = (req, res, next) => {
+  if (req.isAuthenticated() && req.user.role === "owner" && req.user.isPremium) {
+    return next();
+  }
+  req.flash("error", "You must have a Premium subscription to access this feature.");
+  res.redirect("/premium");
+};
+
+// Check if Listing has active boost
+module.exports.hasBoostAccess = async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id);
+  if (listing && listing.boostExpiry && listing.boostExpiry > Date.now()) {
+    return next();
+  }
+  req.flash("error", "This feature is available only for boosted listings.");
+  res.redirect(`/listings/${req.params.id}/boost`);
+};
+
+// Apply commission logic
+module.exports.applyCommission = (req, res, next) => {
+  if (req.user && req.user.role === "owner") {
+    res.locals.commissionRate = 0.10; // 10% commission
+  } else {
+    res.locals.commissionRate = 0;
+  }
+  next();
+};

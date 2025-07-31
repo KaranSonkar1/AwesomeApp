@@ -1,0 +1,7 @@
+<div class="ads-carousel">
+  <% ads.forEach(ad => { %>
+    <a href="<%= ad.link %>">
+      <img src="<%= ad.image %>" alt="Ad" style="width:100%;height:200px;object-fit:cover;">
+    </a>
+  <% }) %>
+</div>

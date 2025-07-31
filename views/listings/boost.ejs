@@ -1,0 +1,35 @@
+<% layout("layouts/boilerplate") %>
+<div class="container my-5">
+  <h2>Boost Your Listing</h2>
+  <p>Appear at the top of search results for 7 days — just ₹199!</p>
+  <button id="payBtn" class="btn btn-primary">Boost Now</button>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById("payBtn").addEventListener("click", async () => {
+  const res = await fetch("/boost/create-order", { method: "POST" });
+  const order = await res.json();
+  const options = {
+    key: "<%= razorpayKey %>",
+    amount: order.amount,
+    currency: order.currency,
+    name: "Boost Listing",
+    description: "Priority Listing",
+    order_id: order.id,
+    handler: async (response) => {
+      const verify = await fetch("/boost/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...response, listingId: "<%= listingId %>" })
+      });
+      const data = await verify.json();
+      if (data.success) {
+        alert("Boost activated!");
+        location.href = "/listings";
+      }
+    }
+  };
+  new Razorpay(options).open();
+});
+</script>

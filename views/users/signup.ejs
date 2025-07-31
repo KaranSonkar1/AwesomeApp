@@ -1,91 +1,109 @@
 <% layout("layouts/boilerplate") %>
 
-<div class="row mt-3">
-  <h1 class="col-6 offset-3">Sign Up on WanderLust</h1>
-  <div class="col-6 offset-3">
+<div class="d-flex justify-content-center align-items-center mt-4 mb-5">
+  <div class="card shadow-lg p-4 rounded-4" style="max-width: 480px; width: 100%;">
+    <div class="card-body">
+      <h3 class="mb-4 text-center fw-bold text-success">Sign Up on Booking App</h3>
 
-    <form action="/signup" method="POST" class="needs-validation" novalidate>
-      
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="username"
-          name="username" 
-          required 
-        />
-        <div class="invalid-feedback">
-          Please enter a username.
+      <form action="/signup" method="POST" class="needs-validation" novalidate>
+
+        <!-- Username -->
+        <div class="mb-3">
+          <label for="username" class="form-label fw-semibold">Username</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="username"
+            name="username" 
+            placeholder="Enter your username"
+            required 
+          />
+          <div class="invalid-feedback">
+            Please enter a username.
+          </div>
         </div>
-      </div>
 
-      <div class="mb-3">
-        <label for="email" class="form-label">Email address</label>
-        <input 
-          type="email" 
-          class="form-control" 
-          id="email" 
-          name="email" 
-          required 
-        />
-        <div class="invalid-feedback">
-          Please enter a valid email.
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold">Email address</label>
+          <input 
+            type="email" 
+            class="form-control" 
+            id="email" 
+            name="email" 
+            placeholder="you@example.com"
+            required 
+          />
+          <div class="invalid-feedback">
+            Please enter a valid email.
+          </div>
         </div>
-      </div>
 
-      <div class="mb-3">
-        <label for="phone" class="form-label">Phone Number</label>
-        <input 
-          type="tel" 
-          class="form-control" 
-          id="phone" 
-          name="phone" 
-          pattern="^\+\d{10,15}$"
-          placeholder="+919876543210"
-          required 
-        />
-        <div class="invalid-feedback">
-          Please enter a valid phone number (e.g., +919876543210).
+        <!-- Phone -->
+        <div class="mb-3">
+          <label for="phone" class="form-label fw-semibold">Phone Number</label>
+          <input 
+            type="tel" 
+            class="form-control" 
+            id="phone" 
+            name="phone" 
+            pattern="^\+\d{10,15}$"
+            placeholder="+919876543210"
+            required 
+          />
+          <div class="invalid-feedback">
+            Please enter a valid phone number (e.g., +919876543210).
+          </div>
         </div>
-      </div>
 
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input 
-          type="password" 
-          class="form-control" 
-          id="password" 
-          name="password" 
-          required 
-        />
-        <div class="invalid-feedback">
-          Please enter a password.
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label fw-semibold">Password</label>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            name="password" 
+            placeholder="Enter a secure password"
+            required 
+          />
+          <div class="invalid-feedback">
+            Please enter a password.
+          </div>
         </div>
-      </div>
 
-      <!-- Role Selection -->
-      <div class="mb-3">
-        <label for="role" class="form-label">Choose your role</label>
-        <select class="form-select" id="role" name="role" required>
-          <option value="">Select role</option>
-          <option value="owner">Owner</option>
-          <option value="client">Client</option>
-        </select>
-        <div class="invalid-feedback">
-          Please select your role.
+        <!-- Role Selection -->
+        <div class="mb-3">
+          <label for="role" class="form-label fw-semibold">Choose your role</label>
+          <select class="form-select" id="role" name="role" required>
+            <option value="">Select role</option>
+            <option value="owner">Owner</option>
+            <option value="client">Client</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select your role.
+          </div>
         </div>
-      </div>
 
-      <div class="text-center">
-        <button type="submit" class="btn btn-success w-100">Sign Up</button>
-      </div>
-    </form>
+        <!-- Submit Button -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success btn-lg">Sign Up</button>
+        </div>
+      </form>
 
+      <!-- Login Link -->
+      <div class="text-center mt-3">
+        <p class="mb-0">
+          Already have an account? 
+          <a href="/login" class="fw-semibold text-decoration-none">Login</a>
+        </p>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
+  // Bootstrap validation
   (() => {
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');

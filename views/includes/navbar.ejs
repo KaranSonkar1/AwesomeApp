@@ -7,126 +7,47 @@
     border-bottom: 1px solid #dee2e6;
     z-index: 999;
   }
-
-  .navbar-brand i {
-    font-size: 1.5rem;
-    color: #fe424d;
-    transition: transform 0.3s;
+  .navbar-brand i { font-size: 1.5rem; color: #fe424d; transition: transform 0.3s; }
+  .navbar-brand i:hover { transform: scale(1.2); }
+  .search-inp, .filter-select {
+    border-radius: 25px; padding: 0.5rem 1rem; margin-right: 0.5rem;
+    border: 1px solid #ced4da; transition: border-color 0.2s ease-in-out;
   }
-
-  .navbar-brand i:hover {
-    transform: scale(1.2);
+  .search-inp:focus, .filter-select:focus {
+    border-color: #fe424d; box-shadow: 0 0 0 0.2rem rgba(254, 66, 77, 0.25); outline: none;
   }
-
-  .search-inp,
-  .filter-select {
-    border-radius: 25px;
-    padding: 0.5rem 1rem;
-    margin-right: 0.5rem;
-    border: 1px solid #ced4da;
-    transition: border-color 0.2s ease-in-out;
-  }
-
-  .search-inp:focus,
-  .filter-select:focus {
-    border-color: #fe424d;
-    box-shadow: 0 0 0 0.2rem rgba(254, 66, 77, 0.25);
-    outline: none;
-  }
-
   .search-btn {
-    background-color: #fe424d;
-    color: #fff;
-    border-radius: 25px;
-    padding: 0.5rem 1.5rem;
-    transition: background-color 0.3s;
+    background-color: #fe424d; color: #fff; border-radius: 25px;
+    padding: 0.5rem 1.5rem; transition: background-color 0.3s;
   }
-
-  .search-btn:hover {
-    background-color: #e63946;
-    color: #fff;
-  }
-
-  .wishlist-icon {
-    font-size: 1.5rem;
-    position: relative;
-    color: #fe424d;
-    transition: transform 0.2s;
-  }
-
-  .wishlist-icon:hover {
-    transform: scale(1.2);
-  }
-
+  .search-btn:hover { background-color: #e63946; color: #fff; }
+  .wishlist-icon { font-size: 1.5rem; position: relative; color: #fe424d; transition: transform 0.2s; }
+  .wishlist-icon:hover { transform: scale(1.2); }
   .wishlist-badge {
-    position: absolute;
-    top: -6px;
-    right: -10px;
-    background-color: red;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 50%;
-    font-weight: bold;
+    position: absolute; top: -6px; right: -10px; background-color: red; color: white;
+    font-size: 0.7rem; padding: 2px 6px; border-radius: 50%; font-weight: bold;
   }
-
-  .dropdown-menu-wishlist {
-    min-width: 250px;
-    max-height: 300px;
-    overflow-y: auto;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
+  .dropdown-menu-wishlist { min-width: 250px; max-height: 300px; overflow-y: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); border-radius: 10px;
   }
-
-  .dropdown-item-wishlist {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .dropdown-item-wishlist { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-link:hover { color: #fe424d; }
+  .navbar-text { font-weight: 500; color: #343a40; }
+  .premium-badge {
+    background: gold; color: black; font-size: 0.75rem;
+    padding: 3px 8px; border-radius: 8px; font-weight: bold; margin-left: 6px;
   }
-
-  .nav-link:hover {
-    color: #fe424d;
-  }
-
-  .navbar-text {
-    font-weight: 500;
-    color: #343a40;
-  }
-
   @media (max-width: 768px) {
-    .navbar-nav {
-      flex-direction: column;
-      align-items: flex-start;
+    .navbar-nav { flex-direction: column; align-items: flex-start; }
+    .navbar-text { margin-top: 0.5rem; }
+    .navbar .search-inp, .navbar .filter-select, .navbar .search-btn {
+      width: 100%; margin: 0.3rem 0;
     }
-
-    .navbar-text {
-      margin-top: 0.5rem;
-    }
-
-    .navbar .search-inp,
-    .navbar .filter-select,
-    .navbar .search-btn {
-      width: 100%;
-      margin: 0.3rem 0;
-    }
-
-    .navbar .d-flex {
-      flex-direction: column;
-      width: 100%;
-    }
-
-    .wishlist-icon {
-      font-size: 1.3rem;
-    }
-
-    .dropdown-menu-wishlist {
-      width: 100%;
-      max-height: 200px;
-    }
-
+    .navbar .d-flex { flex-direction: column; width: 100%; }
+    .wishlist-icon { font-size: 1.3rem; }
+    .dropdown-menu-wishlist { width: 100%; max-height: 200px; }
     .navbar .navbar-collapse {
-      background-color: rgba(255, 255, 255, 0.95);
-      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.95); padding: 1rem;
     }
   }
 </style>
@@ -142,19 +63,16 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <!-- Left Links -->
       <div class="navbar-nav">
         <a class="nav-link" href="/listings">Explore</a>
       </div>
 
+      <!-- Search -->
       <div class="navbar-nav ms-auto me-3">
         <form class="d-flex" role="search" action="/listings" method="GET">
-          <input
-            name="q"
-            class="form-control search-inp"
-            type="search"
-            placeholder="Search destinations"
-            value="<%= typeof searchParams !== 'undefined' && searchParams.q ? searchParams.q : '' %>"
-          />
+          <input name="q" class="form-control search-inp" type="search" placeholder="Search destinations"
+            value="<%= typeof searchParams !== 'undefined' && searchParams.q ? searchParams.q : '' %>" />
           <select name="category" class="form-select filter-select">
             <option value="all">All Categories</option>
             <% if (typeof categories !== 'undefined') { %>
@@ -166,12 +84,14 @@
             <% } %>
           </select>
           <button class="btn search-btn" type="submit">
-            <i class="fa-solid fa-magnifying-glass"></i>Search
+            <i class="fa-solid fa-magnifying-glass"></i> Search
           </button>
         </form>
       </div>
 
+      <!-- Right Side -->
       <div class="navbar-nav ms-auto align-items-center gap-2">
+        <!-- Wishlist for Clients -->
         <% if (currentUser && currentUser.role === 'client') { %>
           <div class="nav-item dropdown">
             <a class="nav-link wishlist-icon dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="wishlistDropdown">
@@ -186,10 +106,17 @@
           </div>
         <% } %>
 
+        <!-- Owner Controls -->
         <% if (currentUser && currentUser.role === 'owner') { %>
           <a class="nav-link" href="/listings/new">Airbnb your home</a>
+          <% if (currentUser.premium && currentUser.premium.isActive) { %>
+            <span class="premium-badge">Premium</span>
+          <% } else { %>
+            <a class="btn btn-sm btn-warning" href="/premium/subscribe">Go Premium</a>
+          <% } %>
         <% } %>
 
+        <!-- User Menu -->
         <% if (currentUser) { %>
           <div class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -235,7 +162,6 @@
           li.innerHTML = `<a href="/listings/${item._id}" class="text-decoration-none">${item.title}</a>`;
           preview.appendChild(li);
         });
-
         if (count > 3) {
           const viewAll = document.createElement("li");
           viewAll.innerHTML = `<a class="dropdown-item text-center" href="/wishlist">View all (${count})</a>`;
@@ -248,6 +174,5 @@
       preview.innerHTML = `<li class="dropdown-item text-danger">Failed to load.</li>`;
     }
   }
-
   document.addEventListener("DOMContentLoaded", loadWishlist);
 </script>

@@ -5,11 +5,13 @@
 </script>
 
 <style>
+  /* ================= GLOBAL STYLES ================= */
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f9f9f9;
   }
 
+  /* ================= CARD STYLES ================= */
   .listing-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 1rem;
@@ -19,6 +21,7 @@
     display: flex;
     flex-direction: column;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    position: relative;
   }
 
   .listing-card:hover {
@@ -36,9 +39,6 @@
   .card-body {
     padding: 1.25rem;
     flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
   }
 
   .card-body h5 {
@@ -52,10 +52,7 @@
     color: inherit;
   }
 
-  .listing-link:hover {
-    color: #000;
-  }
-
+  /* ================= WISHLIST BUTTON ================= */
   .wishlist-toggle {
     font-size: 1.5rem;
     background: rgba(255, 255, 255, 0.85);
@@ -81,13 +78,29 @@
     color: red;
   }
 
+  /* ================= FEATURED BADGE ================= */
+  .featured-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: gold;
+    color: black;
+    font-weight: bold;
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* ================= TAX INFO ================= */
   .tax-info {
     font-size: 0.85rem;
     color: #888;
     display: none;
   }
 
-  /* Filters */
+  /* ================= FILTER BAR ================= */
   #filters {
     display: flex;
     overflow-x: auto;
@@ -101,7 +114,6 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     align-items: center;
     margin-bottom: 1.5rem;
-    flex-direction: row;
   }
 
   .filter {
@@ -113,209 +125,115 @@
     background: #f7f7f9;
     transition: all 0.25s ease;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-    border: 1px solid transparent;
   }
 
   .filter:hover {
     background: linear-gradient(to right, #edf0f4, #f5f8fb);
     transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
 
   .active-filter {
     background-color: #0d6efd !important;
     color: #fff;
-    border: 1px solid #0a58ca;
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
   }
 
-  .filter i {
-    font-size: 1.1rem;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  .filter p {
-    font-size: 0.75rem;
-    margin: 0;
-    font-weight: 500;
-  }
-
-  .tax-toggle {
-    padding: 0.6rem 1rem;
-    background: #fefefe;
+  /* ================= SORT DROPDOWN ================= */
+  .sort-select {
     border-radius: 999px;
-    border: 1px solid #e0e0e0;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    margin-left: auto;
-  }
-
-  .tax-toggle:hover {
-    background: #f9f9f9;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  @media (max-width: 576px) {
-    .card-body {
-      padding: 1rem;
-    }
-
-    #filters {
-      gap: 0.6rem;
-      padding: 0.75rem;
-      flex-wrap: nowrap;
-    }
-
-    .filter {
-      padding: 0.45rem 0.75rem;
-    }
-
-    .tax-toggle {
-      font-size: 0.8rem;
-      padding: 0.4rem 0.8rem;
-    }
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    outline: none;
   }
 </style>
 
-<!-- Filters -->
-<div id="filters">
-  <% ["Trending", "Room", "Iconic Cities", "Mountains", "Castles", "Amazing Pools", "Camping", "Farms", "Arctic", "Domes", "Boats"].forEach(category => { %>
-    <a href="/listings?category=<%= category %>" class="listing-link">
-      <div class="filter <%= searchParams.category === category ? 'active-filter' : '' %>">
-        <div>
-          <% if (category === 'Trending') { %><i class="fa-solid fa-fire"></i><% } %>
-          <% if (category === 'Room') { %><i class="fa-solid fa-bed"></i><% } %>
-          <% if (category === 'Iconic Cities') { %><i class="fa-solid fa-mountain-city"></i><% } %>
-          <% if (category === 'Mountains') { %><i class="fa-solid fa-mountain"></i><% } %>
-          <% if (category === 'Castles') { %><i class="fa-brands fa-fort-awesome"></i><% } %>
-          <% if (category === 'Amazing Pools') { %><i class="fa-solid fa-person-swimming"></i><% } %>
-          <% if (category === 'Camping') { %><i class="fa-solid fa-campground"></i><% } %>
-          <% if (category === 'Farms') { %><i class="fa-solid fa-cow"></i><% } %>
-          <% if (category === 'Arctic') { %><i class="fa-solid fa-snowflake"></i><% } %>
-          <% if (category === 'Domes') { %><i class="fa-solid fa-igloo"></i><% } %>
-          <% if (category === 'Boats') { %><i class="fa-solid fa-ship"></i><% } %>
+<!-- ================= FILTER BAR ================= -->
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+  <div id="filters">
+    <% ["Trending", "Room", "Iconic Cities", "Mountains", "Castles", "Amazing Pools", "Camping", "Farms", "Arctic", "Domes", "Boats"].forEach(category => { %>
+      <a href="/listings?category=<%= category %>" class="listing-link">
+        <div class="filter <%= searchParams.category === category ? 'active-filter' : '' %>">
+          <%= category %>
         </div>
-        <p><%= category %></p>
-      </div>
-    </a>
-  <% }); %>
-
-  <div class="tax-toggle">
-    <div class="d-flex align-items-center gap-2">
-      <label class="form-check-label m-0" for="switchCheckDefault" style="font-weight: 500;">
-        Show total with tax
-      </label>
-      <div class="form-check form-switch m-0">
-        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault" />
-      </div>
-    </div>
+      </a>
+    <% }); %>
   </div>
+
+  <!-- Sorting -->
+  <form method="GET" action="/listings">
+    <% if (searchParams.category) { %>
+      <input type="hidden" name="category" value="<%= searchParams.category %>">
+    <% } %>
+    <select name="sort" class="sort-select" onchange="this.form.submit()">
+      <option value="">Sort By</option>
+      <option value="priceAsc" <%= searchParams.sort === 'priceAsc' ? 'selected' : '' %>>Price: Low to High</option>
+      <option value="priceDesc" <%= searchParams.sort === 'priceDesc' ? 'selected' : '' %>>Price: High to Low</option>
+      <option value="latest" <%= searchParams.sort === 'latest' ? 'selected' : '' %>>Latest</option>
+    </select>
+  </form>
 </div>
 
-<!-- Listings Grid -->
+<!-- ================= LISTINGS GRID ================= -->
 <div class="row g-4 mt-3">
-  <% if (allListings && allListings.length) { %>
-    <% for (let listing of allListings) { %>
+  <% if (allListings.length) { %>
+    <% allListings.forEach(listing => { %>
       <div class="col-lg-4 col-md-6 col-sm-12">
         <div class="listing-card">
-          <div class="position-relative">
-            <a href="/listings/<%= listing._id %>" class="listing-link">
-              <img
-                src="<%= listing.image?.url || 'https://example.com/default-image.jpg' %>"
-                class="card-img-top"
-                alt="<%= listing.title %> image"
-              />
-            </a>
-            <button class="wishlist-toggle <%= currentUser && currentUser.wishlist.includes(listing._id) ? 'wishlisted' : '' %>" data-id="<%= listing._id %>">
-              <% if (currentUser && currentUser.wishlist.includes(listing._id)) { %>❤️<% } else if (!currentUser && guestWishlist.includes(listing._id.toString())) { %>❤️<% } else { %>🤍<% } %>
-            </button>
-          </div>
+          <% if (listing.featured) { %>
+            <div class="featured-badge">⭐ Featured</div>
+          <% } %>
+          <a href="/listings/<%= listing._id %>" class="listing-link">
+            <img src="<%= listing.image?.url || '/images/default.jpg' %>" class="card-img-top">
+          </a>
+
+          <!-- Wishlist -->
+          <button class="wishlist-toggle <%= currentUser && currentUser.wishlist.includes(listing._id) ? 'wishlisted' : '' %>" data-id="<%= listing._id %>">
+            <% if (currentUser && currentUser.wishlist.includes(listing._id)) { %>❤️<% } else if (!currentUser && guestWishlist.includes(listing._id.toString())) { %>❤️<% } else { %>🤍<% } %>
+          </button>
+
           <div class="card-body">
-            <a href="/listings/<%= listing._id %>" class="listing-link">
-              <h5><%= listing.title %></h5>
-              <div class="text-muted small">₹<span class="base-price"><%= listing.price %></span>/night</div>
-              <div class="tax-info small mt-1">
-                + GST ₹<span class="gst"></span> (18%)<br />
-                Total: ₹<span class="total-price"></span>
-              </div>
-            </a>
+            <h5><%= listing.title %></h5>
+            <div class="text-muted small">₹<span class="base-price"><%= listing.price %></span>/night</div>
+            <div class="tax-info small mt-1">
+              + GST ₹<span class="gst"></span> (18%)<br />
+              Total: ₹<span class="total-price"></span>
+            </div>
           </div>
         </div>
       </div>
-    <% } %>
+    <% }) %>
   <% } else { %>
     <div class="text-center mt-5">
-      <h4>No listings available at this time.</h4>
-      <a href="/listings" class="btn btn-outline-primary mt-3">Back to All Listings</a>
+      <h4>No listings available</h4>
     </div>
   <% } %>
 </div>
 
 <script>
-  const taxSwitch = document.getElementById("switchCheckDefault");
-  taxSwitch.addEventListener("click", () => {
-    const taxInfos = document.querySelectorAll(".tax-info");
-    const basePrices = document.querySelectorAll(".base-price");
-    const gstEls = document.querySelectorAll(".gst");
-    const totalEls = document.querySelectorAll(".total-price");
-
-    if (taxSwitch.checked) {
-      taxInfos.forEach((el, idx) => {
-        const base = parseFloat(basePrices[idx].textContent);
-        const gst = (base * 0.18).toFixed(0);
-        const total = Math.round(base + parseFloat(gst));
-        gstEls[idx].textContent = gst;
-        totalEls[idx].textContent = total;
-        el.style.display = "inline";
-      });
-    } else {
-      taxInfos.forEach((el) => {
-        el.style.display = "none";
-      });
-    }
+  /* ================= TAX TOGGLE ================= */
+  document.querySelectorAll(".base-price").forEach((priceEl, i) => {
+    const gst = (parseFloat(priceEl.textContent) * 0.18).toFixed(0);
+    document.querySelectorAll(".gst")[i].textContent = gst;
+    document.querySelectorAll(".total-price")[i].textContent = parseInt(priceEl.textContent) + parseInt(gst);
   });
 
+  /* ================= WISHLIST TOGGLE ================= */
   const toggleWishlist = async (id, btn) => {
-    const res = await fetch(`/wishlist/toggle/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" }
-    });
+    const res = await fetch(`/wishlist/toggle/${id}`, { method: "POST", headers: { "Content-Type": "application/json" } });
     const data = await res.json();
-    if (data.inWishlist) {
-      btn.classList.add("wishlisted");
-      btn.innerHTML = "❤️";
-    } else {
-      btn.classList.remove("wishlisted");
-      btn.innerHTML = "🤍";
-    }
-
+    btn.innerHTML = data.inWishlist ? "❤️" : "🤍";
+    btn.classList.toggle("wishlisted", data.inWishlist);
     if (data.guest) {
       let guestWishlist = JSON.parse(localStorage.getItem("guestWishlist") || "[]");
-      if (data.inWishlist && !guestWishlist.includes(id)) guestWishlist.push(id);
-      if (!data.inWishlist) guestWishlist = guestWishlist.filter(x => x !== id);
+      if (data.inWishlist) guestWishlist.push(id);
+      else guestWishlist = guestWishlist.filter(x => x !== id);
       localStorage.setItem("guestWishlist", JSON.stringify(guestWishlist));
     }
   };
 
   document.querySelectorAll(".wishlist-toggle").forEach(btn => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", e => {
       e.preventDefault();
       toggleWishlist(btn.dataset.id, btn);
-    });
-  });
-
-  window.addEventListener("DOMContentLoaded", () => {
-    const stored = JSON.parse(localStorage.getItem("guestWishlist") || "[]");
-    stored.forEach(id => {
-      const btn = document.querySelector(`.wishlist-toggle[data-id='${id}']`);
-      if (btn) {
-        btn.classList.add("wishlisted");
-        btn.innerHTML = "❤️";
-      }
     });
   });
 </script>
