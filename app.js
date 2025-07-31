@@ -50,9 +50,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // ==================== Session Store ====================
 const store = MongoStore.create({
   mongoUrl: dbUrl,
-  crypto: {
-    secret: process.env.SECRET,
-  },
+  crypto: { secret: process.env.SECRET },
   touchAfter: 24 * 3600 // Update session only once every 24 hrs
 });
 
@@ -62,7 +60,7 @@ store.on("error", function (e) {
 
 const sessionConfig = {
   store,
-  name: "session", // Avoids default 'connect.sid'
+  name: "session",
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
@@ -91,7 +89,7 @@ app.use(syncGuestWishlist);
 // ==================== Global Template Variables ====================
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
-  res.locals.guestWishlist = req.session.guestWishlist || []; // ✅ fixed name
+  res.locals.guestWishlist = req.session.guestWishlist || [];
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -116,6 +114,18 @@ app.get("/privacy", (req, res) => {
 
 app.get("/terms", (req, res) => {
   res.render("static/terms");
+});
+
+app.get("/refund", (req, res) => {
+  res.render("static/refund");
+});
+
+app.get("/shipping", (req, res) => {
+  res.render("static/shipping");
+});
+
+app.get("/contact", (req, res) => {
+  res.render("static/contact");
 });
 
 // ==================== 404 Handler ====================
